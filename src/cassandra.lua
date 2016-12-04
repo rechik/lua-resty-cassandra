@@ -7,7 +7,7 @@ local constants = require("cassandra.constants")
 
 local CQL_VERSION = "3.0.0"
 
-math.randomseed(ngx and ngx.time() or os.time())
+math.randomseed(os.time())
 
 local _M = {
   version="0.5-7",
