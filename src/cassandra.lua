@@ -31,18 +31,8 @@ _M.null = {type="null", value=nil}
 local mt = {__index=_M}
 
 function _M.new()
-  local tcp
-  if ngx and ngx.get_phase ~= nil and ngx.get_phase() ~= "init" then
-    -- openresty
-    tcp = ngx.socket.tcp
-  else
-    -- fallback to luasocket
-    -- It's also a fallback for openresty in the
-    -- "init" phase that doesn't support Cosockets
-    tcp = require("socket").tcp
-  end
-
-  local sock, err = tcp()
+  local sock, err = socket('AF_INET', 'SOCK_STREAM', 'tcp')
+  
   if not sock then
     return nil, err
   end
@@ -104,7 +94,10 @@ function _M:connect(contact_points, port)
     if not host_port then
       host_port = port
     end
-    ok, err = sock:connect(host, host_port)
+    
+    socket.getaddrinfo('127.0.0.1', 'http')
+    
+    ok, err = sock:sysconnect(host, host_port)
     if ok then
       self.host = host
       break
@@ -119,35 +112,6 @@ function _M:connect(contact_points, port)
     self.initialized = true
   end
   return true
-end
-
-function _M:set_timeout(timeout)
-  local sock = self.sock
-  if not sock then
-    return nil, "not initialized"
-  end
-
-  return sock:settimeout(timeout)
-end
-
-function _M:set_keepalive(...)
-  local sock = self.sock
-  if not sock then
-    return nil, "not initialized"
-  elseif sock.setkeepalive then
-    return sock:setkeepalive(...)
-  end
-  return nil, "luasocket does not support reusable sockets"
-end
-
-function _M:get_reused_times()
-  local sock = self.sock
-  if not sock then
-    return nil, "not initialized"
-  elseif sock.getreusedtimes then
-    return sock:getreusedtimes()
-  end
-  return nil, "luasocket does not support reusable sockets"
 end
 
 function _M:close()
