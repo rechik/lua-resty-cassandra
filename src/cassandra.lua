@@ -31,6 +31,8 @@ _M.null = {type="null", value=nil}
 local mt = {__index=_M}
 
 function _M.new()
+  local socket  = require("socket")  
+
   local sock, err = socket('AF_INET', 'SOCK_STREAM', 'tcp')
   
   if not sock then
