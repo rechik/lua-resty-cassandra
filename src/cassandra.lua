@@ -95,7 +95,8 @@ function _M:connect(contact_points, port)
       host_port = port
     end
     
-    socket.getaddrinfo('127.0.0.1', 'http')
+    socket.getaddrinfo(host, 'http')
+  
     
     ok, err = sock:sysconnect(host, host_port)
     if ok then
